@@ -1,52 +1,26 @@
-import datetime
+import json
+import os.path
+from json import load
 
 from django.shortcuts import render
 
-
+base_dir = os.path.dirname(__file__)
 # Create your views here.
+
+def jsonloader(file_name):
+    with open(os.path.join(base_dir, file_name), 'r', encoding='utf-8') as json_obj:
+        return json.load(json_obj)
 
 def index(request):
     context = {'title': 'geekshop'}
-
     return render(request, 'mainapp/index.html', context)
 
 
+
+
 def products(request):
-    categories = [{'name': 'новинки'},
-                  {'name': 'одежда'},
-                  {'name': 'обувь'},
-                  {'name': 'аксессуары'},
-                  {'name': 'подарки'}]
-
-    products = [{'name': 'Худи черного цвета с монограммами adidas Originals',
-                 'price': 6090,
-                 'description': 'Мягкая ткань для свитшотов. Стиль и комфорт – это образ жизни.',
-                 'img': 'vendor/img/products/Adidas-hoodie.png'},
-                {'name': 'Синяя куртка The North Face',
-                 'price': 23725,
-                 'description': 'Гладкая ткань. Водонепроницаемое покрытие. Легкий и теплый пуховый наполнитель.',
-                 'img': 'vendor/img/products/Blue-jacket-The-North-Face.png'},
-                {'name': 'Коричневый спортивный oversized-топ ASOS DESIGN',
-                 'price': 3390,
-                 'description': 'Материал с плюшевой текстурой. Удобный и мягкий.',
-                 'img': 'vendor/img/products/Brown-sports-oversized-top-ASOS-DESIGN.png'},
-                {'name': 'Черный рюкзак Nike Heritage',
-                 'price': 2340,
-                 'description': 'Плотная ткань. Легкий материал.',
-                 'img': 'vendor/img/products/Black-Nike-Heritage-backpack.png'},
-                {'name': 'Черные туфли на платформе с 3 парами люверсов Dr Martens 1461 Bex',
-                 'price': 13590,
-                 'description': 'Гладкий кожаный верх. Натуральный материал.',
-                 'img': 'vendor/img/products/Black-Dr-Martens-shoes.png'},
-                {'name': 'Темно-синие широкие строгие брюки ASOS DESIGN',
-                 'price': 2890,
-                 'description': 'Легкая эластичная ткань сирсакер Фактурная ткань.',
-                 'img': 'vendor/img/products/Dark-blue-wide-leg-ASOs-DESIGN-trousers.png'},
-                ]
-
-    context = {'date': datetime.datetime.now(),
-               'title': "geekShop - Каталог",
-               'categories': categories,
-               'products': products}
+    context = {'title': "geekShop - Каталог",
+               'categories': jsonloader('fixtures/categories.json'),
+               'products': jsonloader('fixtures/products.json')}
 
     return render(request, 'mainapp/products.html', context)
