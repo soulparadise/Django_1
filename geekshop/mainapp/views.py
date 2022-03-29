@@ -4,6 +4,8 @@ from json import load
 
 from django.shortcuts import render
 
+from mainapp.models import Product, ProductCategories
+
 base_dir = os.path.dirname(__file__)
 # Create your views here.
 
@@ -20,7 +22,7 @@ def index(request):
 
 def products(request):
     context = {'title': "geekShop - Каталог",
-               'categories': jsonloader('fixtures/categories.json'),
-               'products': jsonloader('fixtures/products.json')}
+               'categories': ProductCategories.objects.all(),
+               'products': Product.objects.all()}
 
     return render(request, 'mainapp/products.html', context)

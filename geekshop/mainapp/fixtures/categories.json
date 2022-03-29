@@ -1,17 +1,1 @@
-[
-    {
-        "name": "\u043d\u043e\u0432\u0438\u043d\u043a\u0438"
-    },
-    {
-        "name": "\u043e\u0434\u0435\u0436\u0434\u0430"
-    },
-    {
-        "name": "\u043e\u0431\u0443\u0432\u044c"
-    },
-    {
-        "name": "\u0430\u043a\u0441\u0435\u0441\u0441\u0443\u0430\u0440\u044b"
-    },
-    {
-        "name": "\u043f\u043e\u0434\u0430\u0440\u043a\u0438"
-    }
-]
+[{"model": "mainapp.productcategories", "pk": 1, "fields": {"name": "Новинки", "description": "Новинки одежды"}}, {"model": "mainapp.productcategories", "pk": 2, "fields": {"name": "Одежда", "description": "Категория одежды"}}, {"model": "mainapp.productcategories", "pk": 3, "fields": {"name": "Обувь", "description": "Категория обуви"}}, {"model": "mainapp.productcategories", "pk": 4, "fields": {"name": "Аксессуары", "description": "Категория аксессуаров"}}, {"model": "mainapp.productcategories", "pk": 5, "fields": {"name": "Подарки", "description": "Категория подарков"}}]
