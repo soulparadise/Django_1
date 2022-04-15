@@ -5,11 +5,11 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from adminapp.forms import UserAdminRegisterForm, UserAdminUpdateForm, CategoriesAdminCreateForm, \
-    CategoriesAdminUpdateForm
+    CategoriesAdminUpdateForm, ProductAdminCreateForm, ProductAdminUpdateForm
 from authapp.models import User
 from django.contrib.auth.decorators import user_passes_test
 
-from mainapp.models import ProductCategories
+from mainapp.models import ProductCategories, Product
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -116,6 +116,7 @@ def admin_category_update(request, id):
                }
     return render(request, 'adminapp/admin-categories-update-delete.html', context)
 
+
 @user_passes_test(lambda u: u.is_superuser)
 def admin_category_delete(request, id):
     category = ProductCategories.objects.get(id=id)
@@ -123,9 +124,67 @@ def admin_category_delete(request, id):
     category.save()
     return HttpResponseRedirect(reverse('adminapp:admin_categories'))
 
+
 @user_passes_test(lambda u: u.is_superuser)
 def admin_category_activate(request, id):
     category = ProductCategories.objects.get(id=id)
     category.is_active = True
     category.save()
     return HttpResponseRedirect(reverse('adminapp:admin_categories'))
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_products(request):
+    context = {'title': 'GeekShop | Admin | Products',
+               'products': Product.objects.all()}
+    return render(request, 'adminapp/admin-products-read.html', context)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_product_create(request):
+    if request.method == 'POST':
+        form = ProductAdminCreateForm(data=request.POST, files=request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('adminapp:admin_products'))
+        else:
+            print(form.errors)
+    else:
+        form = ProductAdminCreateForm()
+    context = {'title': 'GeekShop | Admin | Create Product',
+               'form': form
+               }
+    return render(request, 'adminapp/admin-products-create.html', context)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_product_update(request, id):
+    product_select = Product.objects.get(id=id)
+    if request.method == "POST":
+        form = ProductAdminUpdateForm(data=request.POST, instance=product_select, files=request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('adminapp:admin_products'))
+    else:
+        form = ProductAdminUpdateForm(instance=product_select)
+    context = {'title': 'GeekShop | Admin | Edit Product',
+               'form': form,
+               'product_select': product_select
+               }
+    return render(request, 'adminapp/admin-products-update-delete.html', context)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_product_delete(request, id):
+    category = Product.objects.get(id=id)
+    category.is_active = False
+    category.save()
+    return HttpResponseRedirect(reverse('adminapp:admin_products'))
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_product_activate(request, id):
+    category = Product.objects.get(id=id)
+    category.is_active = True
+    category.save()
+    return HttpResponseRedirect(reverse('adminapp:admin_products'))
