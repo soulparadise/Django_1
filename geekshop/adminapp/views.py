@@ -122,3 +122,10 @@ def admin_category_delete(request, id):
     category.is_active = False
     category.save()
     return HttpResponseRedirect(reverse('adminapp:admin_categories'))
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_category_activate(request, id):
+    category = ProductCategories.objects.get(id=id)
+    category.is_active = True
+    category.save()
+    return HttpResponseRedirect(reverse('adminapp:admin_categories'))
