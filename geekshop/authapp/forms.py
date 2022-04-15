@@ -43,7 +43,7 @@ class UserProfileForm(UserChangeForm):
         fields = ('username', 'last_name', 'first_name', 'email', 'image', 'age')
 
     def __init__(self, *args, **kwargs):
-        super(UserChangeForm, self).__init__(*args, **kwargs)
+        super(UserProfileForm, self).__init__(*args, **kwargs)
         self.fields['username'].widget.attrs['readonly'] = True
         self.fields['email'].widget.attrs['readonly'] = True
 
