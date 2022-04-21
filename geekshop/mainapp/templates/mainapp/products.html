@@ -61,24 +61,24 @@
 
                 <nav aria-label="Page navigation example">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item {% if not products.has_previous %} disabled {% endif %}">
+                        <li class="page-item {% if not page_obj.has_previous %} disabled {% endif %}">
                             <a class="page-link"
-                               href="{% if products.has_previous %} {% url 'mainapp:page' products.previous_page_number %} {% endif %}"
+                               href="?page={% if page_obj.has_previous %}{{ page_obj.previous_page_number }} {% endif %}"
                                tabindex="-1" aria-disabled="true">Previous</a>
                         </li>
 
-                        {% for page in products.paginator.page_range %}
-                            <li class="page-item"><a class="page-link" href="{% url 'mainapp:page' page %}">{{ page }}</a></li>
+                        {% for page in page_obj.paginator.page_range %}
+                            <li class="page-item"><a class="page-link"
+                                                     href="?page={{ page }}">{{ page }}</a></li>
                         {% endfor %}
 
-                        <li class="page-item {% if not products.has_next %} disabled {% endif %}">
+                        <li class="page-item {% if not page_obj.has_next %} disabled {% endif %}">
                             <a class="page-link"
-                               href="{% if products.has_next %} {% url 'mainapp:page' products.next_page_number %} {% endif %}"
+                               href="?page={% if page_obj.has_next %}{{ page_obj.next_page_number }} {% endif %}"
                                tabindex="-1" aria-disabled="true">Next</a>
                         </li>
                     </ul>
                 </nav>
-
             </div>
 
         </div>

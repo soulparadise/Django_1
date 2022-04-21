@@ -1,27 +1,30 @@
 from django.urls import path
 
-from adminapp.views import index, admin_users, admin_user_create, admin_user_update, admin_user_delete, \
-    admin_user_activate, admin_categories, admin_category_create, admin_category_update, admin_category_delete, \
-    admin_category_activate, admin_products, admin_product_create, admin_product_update, admin_product_delete, \
-    admin_product_activate
+from adminapp.views import IndexTemplateView, AdminUsersView, AdminUserCreate, AdminUserUpdate, \
+    AdminUserActivateDeactivate, AdminUserDelete, AdminCategoryView, AdminCategoryCreate, AdminCategoryUpdate, \
+    AdminCategoryActivateDeactivate, AdminCategoryDelete, AdminProductView, AdminProductCreate, AdminProductUpdate, \
+    AdminProductActivateDeactivate, AdminProductDelete
 
 app_name = 'adminapp'
 urlpatterns = [
-    path('', index, name='index'),
-    path('users/', admin_users, name='admin_users'),
-    path('user-create/', admin_user_create, name='admin_user_create'),
-    path('user-update/<int:id>/', admin_user_update, name='admin_user_update'),
-    path('user-delete/<int:id>/', admin_user_delete, name='admin_user_delete'),
-    path('user-activate/<int:id>/', admin_user_activate, name='admin_user_activate'),
-    path('categories/', admin_categories, name='admin_categories'),
-    path('category-create/', admin_category_create, name='admin_category_create'),
-    path('category-update/<int:id>/', admin_category_update, name='admin_category_update'),
-    path('category-delete/<int:id>/', admin_category_delete, name='admin_category_delete'),
-    path('category-activate/<int:id>/', admin_category_activate, name='admin_category_activate'),
-    path('products/', admin_products, name='admin_products'),
-    path('product-create/', admin_product_create, name='admin_product_create'),
-    path('product-update/<int:id>/', admin_product_update, name='admin_product_update'),
-    path('product-delete/<int:id>/', admin_product_delete, name='admin_product_delete'),
-    path('product-activate/<int:id>/', admin_product_activate, name='admin_product_activate'),
+    path('', IndexTemplateView.as_view(), name='index'),
+    path('users/', AdminUsersView.as_view(), name='admin_users'),
+    path('user-create/', AdminUserCreate.as_view(), name='admin_user_create'),
+    path('user-update/<int:pk>/', AdminUserUpdate.as_view(), name='admin_user_update'),
+    path('user-activate-deactivate/<int:pk>/', AdminUserActivateDeactivate.as_view(),
+         name='admin_user_activate_deactivate'),
+    path('user-delete/<int:pk>/', AdminUserDelete.as_view(), name='admin_user_delete'),
+    path('categories/', AdminCategoryView.as_view(), name='admin_categories'),
+    path('category-create/', AdminCategoryCreate.as_view(), name='admin_category_create'),
+    path('category-update/<int:pk>/', AdminCategoryUpdate.as_view(), name='admin_category_update'),
+    path('category-activate-deactivate/<int:pk>/', AdminCategoryActivateDeactivate.as_view(),
+         name='admin_category_activate_deactivate'),
+    path('category-delete/<int:pk>/', AdminCategoryDelete.as_view(), name='admin_category_delete'),
+    path('products/', AdminProductView.as_view(), name='admin_products'),
+    path('product-create/', AdminProductCreate.as_view(), name='admin_product_create'),
+    path('product-update/<int:pk>/', AdminProductUpdate.as_view(), name='admin_product_update'),
+
+    path('product-activate-deactivate/<int:pk>/', AdminProductActivateDeactivate.as_view(), name='admin_product_activate_deactivate'),
+    path('product-delete/<int:pk>/', AdminProductDelete.as_view(), name='admin_product_delete'),
 
 ]

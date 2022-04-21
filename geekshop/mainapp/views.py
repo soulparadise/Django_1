@@ -4,7 +4,7 @@ from json import load
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 
 from mainapp.models import Product, ProductCategories
 
@@ -25,7 +25,7 @@ def index(request):
 
 def products(request, id_category=None, page=1):
     if id_category:
-        products_ = Product.objects.filter(id=id_category)
+        products_ = Product.objects.filter(category=id_category)
     else:
         products_ = Product.objects.all()
 
@@ -50,3 +50,16 @@ def products(request, id_category=None, page=1):
 class ProductDetail(DetailView):
     model = Product
     template_name = 'mainapp/detail.html'
+
+class CategoriesList(ListView):
+    model = ProductCategories
+    template_name = 'mainapp/products.html'
+    context_object_name = 'categories'
+
+class ProductsList(ListView):
+    model = Product
+    template_name = 'mainapp/products.html'
+    context_object_name = 'products'
+    extra_context = {'categories': ProductCategories.objects.all()}
+    paginate_by = 2
+
