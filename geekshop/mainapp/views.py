@@ -51,10 +51,10 @@ class ProductDetail(DetailView):
     model = Product
     template_name = 'mainapp/detail.html'
 
-class CategoriesList(ListView):
-    model = ProductCategories
-    template_name = 'mainapp/products.html'
-    context_object_name = 'categories'
+# class CategoriesList(ListView):
+#     model = ProductCategories
+#     template_name = 'mainapp/products.html'
+#     context_object_name = 'categories'
 
 class ProductsList(ListView):
     model = Product
@@ -62,4 +62,10 @@ class ProductsList(ListView):
     context_object_name = 'products'
     extra_context = {'categories': ProductCategories.objects.all()}
     paginate_by = 2
+
+    def get_queryset(self):
+        if 'id_category' in self.kwargs:
+            return Product.objects.filter(category=self.kwargs['id_category'])
+        else:
+            return Product.objects.all()
 
