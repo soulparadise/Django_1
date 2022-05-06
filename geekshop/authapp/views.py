@@ -2,37 +2,47 @@ import time
 
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LogoutView, LoginView
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 # Create your views here.
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.views.generic import UpdateView, FormView
 
 import authapp.apps
+from adminapp.mixin import BaseClassContextMixin, UserDispatchMixin
 from authapp.forms import UserLoginForm, UserRegisterForm, UserProfileForm
+from authapp.models import User
 from basket.models import Basket
 
 
-def login(request):
-    if request.method == 'POST':
-        form = UserLoginForm(data=request.POST)
+class LoginUserView(LoginView, BaseClassContextMixin):
+    title = 'Geekshop | Авторизация'
+    form_class = UserLoginForm
+    template_name = 'authapp/login.html'
+
+
+class RegisterUserView(FormView, BaseClassContextMixin):
+    model = User
+    title = 'Geekshop | Регистрация'
+    form_class = UserRegisterForm
+    template_name = 'authapp/register.html'
+    success_url = reverse_lazy('authapp:login')
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(data=request.POST)
         if form.is_valid():
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            user = auth.authenticate(username=username, password=password)
-            if user.is_active:
-                auth.login(request, user)
-                return HttpResponseRedirect(reverse('index'))
-        #     else:
-        #         print('user innactive')
-        # else:
-        #     print(form.errors)
-    else:
-        form = UserLoginForm()
-    context = {'title': 'Geekshop | Авторизация',
-               'form': form
-               }
-    return render(request, 'authapp/login.html', context)
+            form.save()
+            # messages.set_level(request, messages.SUCCESS)
+            messages.success(request, 'Вы успешно зарегестрировались.')
+            return HttpResponseRedirect(reverse('authapp:login'))
+        else:
+            messages.set_level(request, messages.ERROR)
+            messages.error(request, form.errors)
+        context = {'form': form}
+        return render(request, self.template_name, context)
+
 
 
 def register(request):
@@ -51,24 +61,66 @@ def register(request):
                }
     return render(request, 'authapp/register.html', context)
 
-@login_required
-def profile(request):
-    if request.method == 'POST':
-        form = UserProfileForm(instance=request.user, data=request.POST, files=request.FILES)
-        if form.is_valid():
-            form.save()
-        else:
-            print(form.errors)
 
-    user_select = request.user
-    form = UserProfileForm(instance=user_select)
-    context = {'title': 'Geekshop | Профиль',
-               'form': form,
-               'baskets': Basket.objects.filter(user=user_select)
-               }
-    return render(request, 'authapp/profile.html', context)
+class ProfileFormView(UpdateView, BaseClassContextMixin, UserDispatchMixin):
+    model = User
+    template_name = 'authapp/profile.html'
+    form_class = UserProfileForm
+    success_url = reverse_lazy('authapp:profile')
+    title = 'Geekshop | Профиль'
+
+    # def form_valid(self, form):
+    #     messages.set_level(self.request, messages.SUCCESS)
+    #     messages.success(self.request, 'Вы успешно сохранили профиль')
+    #     super().form_valid(form)
+    #     return HttpResponseRedirect(self.get_success_url())
+
+    def get_object(self, queryset=None):
+        return User.objects.get(id=self.request.user.pk)
 
 
-def logout(request):
-    auth.logout(request)
-    return render(request, 'mainapp/index.html')
+class Logout(LogoutView):
+    template_name = 'mainapp/index.html'
+
+# def login(request):
+#     if request.method == 'POST':
+#         form = UserLoginForm(data=request.POST)
+#         if form.is_valid():
+#             username = request.POST.get('username')
+#             password = request.POST.get('password')
+#             user = auth.authenticate(username=username, password=password)
+#             if user.is_active:
+#                 auth.login(request, user)
+#                 return HttpResponseRedirect(reverse('index'))
+#         #     else:
+#         #         print('user innactive')
+#         # else:
+#         #     print(form.errors)
+#     else:
+#         form = UserLoginForm()
+#     context = {'title': 'Geekshop | Авторизация',
+#                'form': form
+#                }
+#     return render(request, 'authapp/login.html', context)
+
+# @login_required
+# def profile(request):
+#     if request.method == 'POST':
+#         form = UserProfileForm(instance=request.user, data=request.POST, files=request.FILES)
+#         if form.is_valid():
+#             form.save()
+#         else:
+#             print(form.errors)
+#
+#     user_select = request.user
+#     form = UserProfileForm(instance=user_select)
+#     context = {'title': 'Geekshop | Профиль',
+#                'form': form,
+#                'baskets': Basket.objects.filter(user=user_select)
+#                }
+#     return render(request, 'authapp/profile.html', context)
+
+
+# def logout(request):
+#     auth.logout(request)
+#     return render(request, 'mainapp/index.html')
