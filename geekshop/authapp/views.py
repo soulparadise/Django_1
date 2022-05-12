@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LogoutView, LoginView
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 # Create your views here.
 from django.urls import reverse, reverse_lazy
@@ -13,7 +13,7 @@ from django.views.generic import UpdateView, FormView
 
 import authapp.apps
 from adminapp.mixin import BaseClassContextMixin, UserDispatchMixin
-from authapp.forms import UserLoginForm, UserRegisterForm, UserProfileForm
+from authapp.forms import UserLoginForm, UserRegisterForm, UserProfileForm, UserProfileEditForm
 from authapp.models import User
 from basket.models import Basket
 from geekshop import settings
@@ -63,7 +63,7 @@ class RegisterUserView(FormView, BaseClassContextMixin):
                 user.activation_key_expires = None
                 user.is_active = True
                 user.save()
-                auth.login(self, user)
+                auth.login(self, user, backend='django.contrib.auth.backends.ModelBackend')
             return render(self, 'authapp/verification.html')
         except Exception as e:
             return HttpResponseRedirect(reverse('index'))
@@ -75,6 +75,18 @@ class ProfileFormView(UpdateView, BaseClassContextMixin, UserDispatchMixin):
     form_class = UserProfileForm
     success_url = reverse_lazy('authapp:profile')
     title = 'Geekshop | Профиль'
+
+    def post(self, request, *args, **kwargs):
+        form = UserProfileForm(data=request.POST, files=request.FILES, instance=request.user)
+        profile_form = UserProfileEditForm(data=request.POST, files=request.FILES, instance=request.user.userprofile)
+        if form.is_valid() and profile_form.is_valid():
+            form.save()
+        return redirect(self.success_url)
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileFormView, self).get_context_data()
+        context['profile'] = UserProfileEditForm(instance=self.request.user.userprofile)
+        return context
 
     # def get_context_data(self, **kwargs):
     #     context = super(ProfileFormView, self).get_context_data()
