@@ -16,7 +16,7 @@ def save_user_profile(backend, user, response, *args, **kwargs):
                           'api.vk.com',
                           '/method/users.get',
                           None,
-                          urlencode(OrderedDict(fields=','.join(('bdate', 'sex', 'about')),
+                          urlencode(OrderedDict(fields=','.join(('bdate', 'sex', 'about', 'personal', 'photo_200')),
                                                 access_token=response['access_token'], v='5.92')), None))
 
     resp = requests.get(api_url)
@@ -42,5 +42,17 @@ def save_user_profile(backend, user, response, *args, **kwargs):
         user.delete()
         raise AuthForbidden('social_core.backends.vk.VKOAuth2')
     user.age = age
+
+    langs = data['personal']['langs']
+    if langs:
+        user.userprofile.langs = langs[0] if len(langs[0]) > 0 else 'RU'
+
+    photo = data['photo_200']
+    if photo:
+        photo_response = requests.get(photo)
+        path_photo = f'users_image/{user.pk}.jpg'
+        with open(f'media/{path_photo}', 'wb') as ph:
+            ph.write(photo_response.content)
+        user.image = path_photo
 
     user.save()
