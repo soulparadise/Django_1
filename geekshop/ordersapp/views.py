@@ -1,9 +1,10 @@
 from django.db import transaction
 from django.forms import inlineformset_factory
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 # Create your views here.
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 
 from basket.models import Basket
@@ -22,7 +23,6 @@ class OrderCreate(CreateView, BaseClassContextMixin):
     fields = []
     success_url = reverse_lazy('orders:list')
     title = 'Geekshop | Создание заказа'
-
 
     def get_context_data(self, **kwargs):
         context = super(OrderCreate, self).get_context_data()
@@ -66,16 +66,55 @@ class OrderCreate(CreateView, BaseClassContextMixin):
 
 
 class OrderUpdate(UpdateView, BaseClassContextMixin):
-    pass
+    model = Order
+    fields = []
+    success_url = reverse_lazy('orders:list')
+    title = 'Geekshop | Создание заказа'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrderUpdate, self).get_context_data()
+
+        OrderFormSet = inlineformset_factory(Order, OrderItem, form=OrderItemsForm, extra=1)
+        if self.request.POST:
+            formset = OrderFormSet(self.request.POST, instance=self.object)
+        else:
+            formset = OrderFormSet(instance=self.object)
+            for num, form in enumerate(formset.forms):
+                if form.instance.pk:
+                    form.initial['price'] = form.instance.product.price
+
+
+
+        context['orderitems'] = formset
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        orderitems = context['orderitems']
+
+        with transaction.atomic():
+            if orderitems.is_valid():
+                orderitems.instance = self.object
+                orderitems.save()
+            if self.object.get_total_cost() == 0:
+                self.object.delete()
+        return super(OrderUpdate, self).form_valid(form)
 
 
 class OrderRead(DetailView, BaseClassContextMixin):
-    pass
+    model = Order
+    title = 'Geekshop | Просмотр заказа'
 
 
 class OrderDelete(DeleteView):
-    pass
+    model = Order
+    success_url = reverse_lazy('orders:list')
+    title = 'Geekshop | Удаление заказа'
+
 
 
 def order_forming_complete(request, pk):
-    pass
+    order = Order.objects.get(pk=pk)
+    order.status = Order.SEND_TO_PROCESSED
+    order.save()
+    return HttpResponseRedirect(reverse('orders:list'))
